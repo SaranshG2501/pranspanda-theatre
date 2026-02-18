@@ -108,18 +108,43 @@ const Admin = () => {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this user? This will permanently remove their account and booking."
+    );
 
-    await supabase.from("bookings").delete().eq("user_id", userId);
-    await supabase.from("user_roles").delete().eq("user_id", userId);
+    if (!confirmDelete) return;
 
-    await supabase.functions.invoke("delete_user", {
-      body: { user_id: userId },
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke("delete_user", {
+        body: { user_id: userId },
+      });
 
-    toast({ title: "User Removed ❌" });
-    fetchAll();
+      if (error) {
+        toast({
+          title: "Delete Failed ❌",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "User Deleted Successfully ✅",
+        description: "The user and all related data have been removed.",
+      });
+
+      // Refresh everything
+      await fetchAll();
+
+    } catch (err: any) {
+      toast({
+        title: "Unexpected Error ❌",
+        description: err.message || "Something went wrong",
+        variant: "destructive",
+      });
+    }
   };
+
 
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -183,20 +208,20 @@ const Admin = () => {
   // ================= BOOKINGS =================
 
   const fetchBookings = async () => {
-  const { data } = await supabase.rpc("get_all_bookings_with_email");
-  if (!data) return;
+    const { data } = await supabase.rpc("get_all_bookings_with_email");
+    if (!data) return;
 
-  setBookings(
-    data.map((b: any) => ({
-      id: b.id,
-      user_id: b.user_id,
-      user_email: b.email,
-      seat_id: b.seat_id,
-      row_num: b.row_num,
-      col_num: b.col_num,
-    }))
-  );
-};
+    setBookings(
+      data.map((b: any) => ({
+        id: b.id,
+        user_id: b.user_id,
+        user_email: b.email,
+        seat_id: b.seat_id,
+        row_num: b.row_num,
+        col_num: b.col_num,
+      }))
+    );
+  };
 
 
   const handleModifyBooking = async () => {
@@ -225,9 +250,8 @@ const Admin = () => {
       <button
         key={col}
         onClick={() => handleToggleFreeze(seat)}
-        className={`w-8 h-8 rounded text-xs ${
-          seat.is_booked ? "bg-red-400" : "bg-green-400"
-        }`}
+        className={`w-8 h-8 rounded text-xs ${seat.is_booked ? "bg-red-400" : "bg-green-400"
+          }`}
       >
         {getSeatLabel(row, col)}
       </button>
@@ -240,7 +264,7 @@ const Admin = () => {
 
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-            <ArrowLeft size={16}/> Dashboard
+            <ArrowLeft size={16} /> Dashboard
           </Button>
           <h1 className="text-2xl font-bold">Admin Panel</h1>
         </div>
@@ -260,18 +284,18 @@ const Admin = () => {
                 <div className="flex gap-2">
                   <Input placeholder="Email" value={newEmail} onChange={e => setNewEmail(e.target.value)} />
                   <Input placeholder="Password" value={newUti} onChange={e => setNewUti(e.target.value)} />
-                  <Select value={newRole} onValueChange={(v: any)=>setNewRole(v)}>
-                    <SelectTrigger className="w-24"><SelectValue/></SelectTrigger>
+                  <Select value={newRole} onValueChange={(v: any) => setNewRole(v)}>
+                    <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="user">User</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button onClick={handleAddUser}><Plus size={14}/> Add</Button>
+                  <Button onClick={handleAddUser}><Plus size={14} /> Add</Button>
                 </div>
 
                 <Label>Upload Excel (email | uti)</Label>
-                <Input type="file" accept=".xlsx,.xls" onChange={handleExcelUpload}/>
+                <Input type="file" accept=".xlsx,.xls" onChange={handleExcelUpload} />
 
                 <Table>
                   <TableHeader>
@@ -282,12 +306,12 @@ const Admin = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map(u=>(
+                    {users.map(u => (
                       <TableRow key={u.id}>
                         <TableCell>{u.email}</TableCell>
                         <TableCell>
-                          <Select value={u.role} onValueChange={(val:any)=>updateRole(u.id,val)}>
-                            <SelectTrigger className="w-24"><SelectValue/></SelectTrigger>
+                          <Select value={u.role} onValueChange={(val: any) => updateRole(u.id, val)}>
+                            <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
                             <SelectContent>
                               <SelectItem value="user">User</SelectItem>
                               <SelectItem value="admin">Admin</SelectItem>
@@ -295,8 +319,8 @@ const Admin = () => {
                           </Select>
                         </TableCell>
                         <TableCell>
-                          <Button size="sm" variant="destructive" onClick={()=>handleDeleteUser(u.id)}>
-                            <Trash2 size={14}/>
+                          <Button size="sm" variant="destructive" onClick={() => handleDeleteUser(u.id)}>
+                            <Trash2 size={14} />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -315,17 +339,17 @@ const Admin = () => {
               <CardContent className="space-y-4">
 
                 <div className="flex gap-4">
-                  <Input type="number" value={newRows} onChange={e=>setNewRows(e.target.value)}/>
+                  <Input type="number" value={newRows} onChange={e => setNewRows(e.target.value)} />
                   <Button onClick={handleUpdateLayout}>Update Layout</Button>
                 </div>
 
-                {layout && Array.from({length:layout.total_rows},(_,r)=>{
-                  const row=r+1;
-                  return(
+                {layout && Array.from({ length: layout.total_rows }, (_, r) => {
+                  const row = r + 1;
+                  return (
                     <div key={r} className="flex gap-6">
-                      <div className="flex gap-1">{[1,2,3,4].map(c=>renderSeat(row,c))}</div>
-                      <div className="flex gap-1">{[5,6,7,8,9,10,11,12].map(c=>renderSeat(row,c))}</div>
-                      <div className="flex gap-1">{[13,14,15,16].map(c=>renderSeat(row,c))}</div>
+                      <div className="flex gap-1">{[1, 2, 3, 4].map(c => renderSeat(row, c))}</div>
+                      <div className="flex gap-1">{[5, 6, 7, 8, 9, 10, 11, 12].map(c => renderSeat(row, c))}</div>
+                      <div className="flex gap-1">{[13, 14, 15, 16].map(c => renderSeat(row, c))}</div>
                     </div>
                   )
                 })}
@@ -348,12 +372,12 @@ const Admin = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bookings.map(b=>(
+                    {bookings.map(b => (
                       <TableRow key={b.id}>
-                        <TableCell>{getSeatLabel(b.row_num,b.col_num)}</TableCell>
+                        <TableCell>{getSeatLabel(b.row_num, b.col_num)}</TableCell>
                         <TableCell>{b.user_email}</TableCell>
                         <TableCell>
-                          <Button size="sm" onClick={()=>setEditingBooking(b)}>Change</Button>
+                          <Button size="sm" onClick={() => setEditingBooking(b)}>Change</Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -364,11 +388,11 @@ const Admin = () => {
                   <div className="border p-4 rounded-lg space-y-3">
                     <div>Change seat for {editingBooking.user_email}</div>
                     <Select onValueChange={setNewSeatId}>
-                      <SelectTrigger><SelectValue placeholder="Select new seat"/></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Select new seat" /></SelectTrigger>
                       <SelectContent>
-                        {availableSeats.map(s=>(
+                        {availableSeats.map(s => (
                           <SelectItem key={s.id} value={s.id}>
-                            {getSeatLabel(s.row_num,s.col_num)}
+                            {getSeatLabel(s.row_num, s.col_num)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -376,7 +400,7 @@ const Admin = () => {
 
                     <div className="flex gap-2">
                       <Button onClick={handleModifyBooking}>Save</Button>
-                      <Button variant="outline" onClick={()=>setEditingBooking(null)}>Cancel</Button>
+                      <Button variant="outline" onClick={() => setEditingBooking(null)}>Cancel</Button>
                     </div>
                   </div>
                 )}
