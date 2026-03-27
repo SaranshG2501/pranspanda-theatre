@@ -236,7 +236,7 @@ const Admin = () => {
     const booking = bookings.find(b => b.seat_id === seat.id);
     const isMine = booking && user && booking.user_id === user.id;
 
-    let className = "w-9 h-9 rounded text-xs font-medium transition-all flex items-center justify-center border";
+    let className = "w-8 h-8 sm:w-9 sm:h-9 rounded text-xs font-medium transition-all flex items-center justify-center border";
     let title = "";
 
     if (!seat.is_booked) {
@@ -342,6 +342,7 @@ const Admin = () => {
           </TabsContent>
 
           {/* LAYOUT TAB */}
+          {/* LAYOUT TAB - Responsive Grid */}
           <TabsContent value="layout">
             <Card className="bg-white/95 border-amber-300/30 shadow-xl backdrop-blur-md">
               <CardHeader>
@@ -353,16 +354,61 @@ const Admin = () => {
                   <Button onClick={handleUpdateLayoutClick}>Update Layout</Button>
                 </div>
 
-                {layout && Array.from({ length: layout.total_rows }, (_, r) => {
-                  const row = r + 1;
-                  return (
-                    <div key={r} className="flex gap-6 justify-center">
-                      <div className="flex gap-1">{[1,2,3,4].map(c => renderSeat(row, c))}</div>
-                      <div className="flex gap-1">{[5,6,7,8,9,10,11,12].map(c => renderSeat(row, c))}</div>
-                      <div className="flex gap-1">{[13,14,15,16].map(c => renderSeat(row, c))}</div>
+                {/* Inside Layout TabsContent - Responsive Grid */}
+                {layout && (
+                  <div className="w-full overflow-x-auto">
+                    <div className="min-w-max md:flex md:justify-center">
+                      <div className="">
+
+                        {Array.from({ length: layout.total_rows }, (_, r) => {
+                          const row = r + 1;
+
+                          return (
+                            <div
+                              key={r}
+                              className="flex items-center gap-8 px-3 py-2 rounded-xl 
+                         bg-black/5 backdrop-blur-sm border border-black/10"
+                            >
+                              {/* Sticky Row Number */}
+                              <div className="sticky left-0 z-10 bg-white px-2 py-1 rounded text-sm font-semibold text-amber-600 shadow">
+                                {row}
+                              </div>
+
+                              {/* Seats */}
+                              <div className="flex gap-3">
+
+                                {/* Block A */}
+                                <div className="flex gap-1">
+                                  {[1, 2, 3, 4].map(c => renderSeat(row, c))}
+                                </div>
+
+                                {/* Aisle */}
+                                <div className="w-4" />
+
+                                {/* Block B */}
+                                <div className="flex gap-1">
+                                  {[5, 6, 7, 8, 9, 10, 11, 12].map(c =>
+                                    renderSeat(row, c)
+                                  )}
+                                </div>
+
+                                {/* Aisle */}
+                                <div className="w-4" />
+
+                                {/* Block C */}
+                                <div className="flex gap-1">
+                                  {[13, 14, 15, 16].map(c => renderSeat(row, c))}
+                                </div>
+
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                      </div>
                     </div>
-                  );
-                })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

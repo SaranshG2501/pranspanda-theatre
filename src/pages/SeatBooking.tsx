@@ -179,35 +179,55 @@ const SeatBooking = () => {
         </div>
 
         {/* Seat Grid */}
-        <div className="flex justify-center">
-          <div className="space-y-4">
-            {Array.from({ length: rows }, (_, r) => {
-              const rowNum = r + 1;
-              return (
-                <div key={r} className="flex gap-8 items-center justify-center">
-                  {/* Row Number */}
-                  <div className="w-7 text-right text-sm font-medium text-amber-300">
-                    {rowNum}
-                  </div>
+        <div className="w-full overflow-x-auto">
+          <div className="min-w-max md:flex md:justify-center">
+            <div className="space-y-3">
 
-                  {/* Seats */}
-                  <div className="flex gap-3">
-                    {/* Block A */}
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4].map((col) => renderSeat(rowNum, col))}
+              {Array.from({ length: rows }, (_, r) => {
+                const rowNum = r + 1;
+
+                return (
+                  <div
+                    key={r}
+                    className="flex items-center gap-8 px-4 py-2 rounded-xl 
+                       bg-white/5 backdrop-blur-sm border border-white/10"
+                  >
+                    {/* Sticky Row Number */}
+                    <div className="sticky left-0 z-10 bg-black/70 px-2 py-1 rounded text-amber-300 text-sm font-semibold">
+                      {rowNum}
                     </div>
-                    {/* Block B */}
-                    <div className="flex gap-1">
-                      {[5, 6, 7, 8, 9, 10, 11, 12].map((col) => renderSeat(rowNum, col))}
-                    </div>
-                    {/* Block C */}
-                    <div className="flex gap-1">
-                      {[13, 14, 15, 16].map((col) => renderSeat(rowNum, col))}
+
+                    {/* Seats */}
+                    <div className="flex gap-3">
+
+                      {/* Block A */}
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4].map((col) => renderSeat(rowNum, col))}
+                      </div>
+
+                      {/* Aisle */}
+                      <div className="w-4" />
+
+                      {/* Block B */}
+                      <div className="flex gap-1">
+                        {[5, 6, 7, 8, 9, 10, 11, 12].map((col) =>
+                          renderSeat(rowNum, col)
+                        )}
+                      </div>
+
+                      {/* Aisle */}
+                      <div className="w-4" />
+
+                      {/* Block C */}
+                      <div className="flex gap-1">
+                        {[13, 14, 15, 16].map((col) => renderSeat(rowNum, col))}
+                      </div>
+
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -254,10 +274,9 @@ const SeatBooking = () => {
         onClick={() => handleSeatClick(seat)}
         disabled={seat.is_booked}
         className={`w-11 h-11 rounded-2xl text-sm font-semibold transition-all duration-200 border-2
-          ${
-            seat.is_booked
-              ? "bg-red-400 text-white border-red-400 cursor-not-allowed"
-              : isSelected
+          ${seat.is_booked
+            ? "bg-red-400 text-white border-red-400 cursor-not-allowed"
+            : isSelected
               ? "bg-amber-400 text-black border-amber-400 scale-110 shadow-lg"
               : "bg-green-400 text-black border-green-400 hover:bg-green-300"
           }`}
