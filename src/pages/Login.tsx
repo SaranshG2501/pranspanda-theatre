@@ -85,7 +85,7 @@ const Login = () => {
 
             <Input
               type="password"
-              placeholder="UTI Code"
+              placeholder="Transaction ID Code"
               value={uti}
               onChange={(e) => setUti(e.target.value)}
               required
