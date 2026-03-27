@@ -6,6 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+
+// Pages
+import Index from "./pages/Index";           // ← New Shinchan jungle homepage
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import SeatBooking from "./pages/SeatBooking";
@@ -22,10 +25,38 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/book" element={<ProtectedRoute><SeatBooking /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute requireAdmin={true}><Admin /></ProtectedRoute>} />
+            {/* ✅ NEW HOMEPAGE - Shinchan jungle theme */}
+            <Route path="/" element={<Index />} />
+
+            {/* Login page kept as fallback (you can remove later if not needed) */}
+            <Route path="/login" element={<Login />} />
+
+            {/* Protected routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/book"
+              element={
+                <ProtectedRoute>
+                  <SeatBooking />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requireAdmin={true}>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
